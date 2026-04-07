@@ -2,10 +2,11 @@ package com.ssafy.moneyandlove.chat.domain;
 
 import java.time.LocalDateTime;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,8 @@ import lombok.experimental.SuperBuilder;
 public class ChatMessage {
 
     @Id
+	private ObjectId id;
+
     private Long roomId;
     private Long senderId;
     private String message;

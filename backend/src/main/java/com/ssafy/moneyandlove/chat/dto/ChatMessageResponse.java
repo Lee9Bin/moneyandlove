@@ -17,6 +17,7 @@ import lombok.ToString;
 @ToString
 public class ChatMessageResponse {
 
+    private String id;
     private Long roomId;
     private Long senderId;
     private String message;
@@ -24,6 +25,7 @@ public class ChatMessageResponse {
 
     public static ChatMessageResponse from(ChatMessage chatMessage){
         return ChatMessageResponse.builder()
+            .id(chatMessage.getId().toHexString())
             .roomId(chatMessage.getRoomId())
             .senderId(chatMessage.getSenderId())
             .message(chatMessage.getMessage())

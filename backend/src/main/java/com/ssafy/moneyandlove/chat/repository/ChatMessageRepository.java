@@ -1,11 +1,16 @@
 package com.ssafy.moneyandlove.chat.repository;
 
-import com.ssafy.moneyandlove.chat.domain.ChatMessage;
-import org.springframework.data.mongodb.repository.MongoRepository;
-
 import java.util.List;
 
-public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
+import org.bson.types.ObjectId;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-    List<ChatMessage> findAllByRoomId(Long roomId);
+import com.ssafy.moneyandlove.chat.domain.ChatMessage;
+
+public interface ChatMessageRepository extends MongoRepository<ChatMessage, ObjectId> {
+
+    List<ChatMessage> findByRoomIdOrderByIdDesc(Long roomId, Pageable pageable);
+
+    List<ChatMessage> findByRoomIdAndIdLessThanOrderByIdDesc(Long roomId, ObjectId cursor, Pageable pageable);
 }

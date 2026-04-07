@@ -16,13 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.moneyandlove.chat.application.ChatMessageService;
 import com.ssafy.moneyandlove.chat.application.ChatRoomService;
-import com.ssafy.moneyandlove.chat.domain.ChatMessage;
 import com.ssafy.moneyandlove.chat.dto.ChatMessageRequest;
 import com.ssafy.moneyandlove.chat.dto.ChatMessageResponse;
 import com.ssafy.moneyandlove.chat.dto.ChatRoomIdResponse;
 import com.ssafy.moneyandlove.chat.dto.CreateChatRoomRequest;
-import com.ssafy.moneyandlove.chat.repository.ChatMessageRepository;
 import com.ssafy.moneyandlove.common.annotation.LoginUser;
 import com.ssafy.moneyandlove.user.domain.User;
 
@@ -37,13 +36,13 @@ public class ChattingController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatRoomService chatRoomService;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageService chatMessageService;
 
     @MessageMapping("/send/{chatRoomId}")
     public void chat(@DestinationVariable String chatRoomId, @LoginUser User loginUser, @Payload ChatMessageRequest chatMessageRequest) {
-        ChatMessage chatMessage = chatMessageRepository.save(chatMessageRequest.toChatMessage(loginUser.getId()));
-        log.info("{}",chatMessage);
-        simpMessagingTemplate.convertAndSend("/api/chat/receive/" + chatRoomId, ChatMessageResponse.from(chatMessage));
+        ChatMessageResponse response = chatMessageService.save(loginUser.getId(), chatMessageRequest);
+        log.info("{}",response);
+        simpMessagingTemplate.convertAndSend("/api/chat/receive/" + chatRoomId, response);
     }
 
     @GetMapping("/room")
@@ -56,9 +55,8 @@ public class ChattingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(chatRoomService.save(loginUser, createChatRoomRequest));
     }
 
-    @GetMapping("room/{roomId}/message")
-    public ResponseEntity<List<ChatMessage>> getChatHistory(@PathVariable Long roomId) {
-        List<ChatMessage> messages = chatMessageRepository.findAllByRoomId(roomId);
-        return ResponseEntity.status(HttpStatus.OK).body(messages);
+    @GetMapping("/room/{roomId}/message")
+    public ResponseEntity<List<ChatMessageResponse>> getChatHistory(@PathVariable Long roomId, @RequestParam(required = false) String cursor, @RequestParam(defaultValue = "15") int size) {
+        return ResponseEntity.ok(chatMessageService.getMessages(roomId, cursor, size));
     }
 }
