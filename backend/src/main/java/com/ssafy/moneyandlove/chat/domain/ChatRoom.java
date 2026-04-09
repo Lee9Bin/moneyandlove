@@ -10,16 +10,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user1_id", "user2_id"}))
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoom extends TimeBaseEntity {
 
 	@Id
@@ -27,17 +29,22 @@ public class ChatRoom extends TimeBaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "from_user_id")
-	private User fromUser;
+	@JoinColumn(name = "user1_id")
+	private User user1;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "to_user_id")
-	private User toUser;
+	@JoinColumn(name = "user2_id")
+	private User user2;
 
-	public static ChatRoom of(User fromUser, User toUser) {
-		return ChatRoom.builder()
-			.fromUser(fromUser)
-			.toUser(toUser)
-			.build();
+	public ChatRoom(User user1, User user2) {
+		this.user1 = user1;
+		this.user2 = user2;
+	}
+
+	public static ChatRoom of(User userA, User userB) {
+		if (userA.getId() < userB.getId()) {
+			return new ChatRoom(userA, userB);
+		}
+		return new ChatRoom(userB, userA);
 	}
 }

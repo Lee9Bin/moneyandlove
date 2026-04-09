@@ -15,7 +15,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
 
 	@Query("SELECT new com.ssafy.moneyandlove.friend.dto.FriendInfoResponse(f.follower.id, f.follower.nickname, f.follower.age, f.follower.gender, f.follower.profileURL, cr.id) " +
 		"FROM Friend f " +
-		"LEFT JOIN ChatRoom cr ON (f.follower.id = cr.fromUser.id AND f.following.id = cr.toUser.id) OR (f.follower.id = cr.toUser.id AND f.following.id = cr.fromUser.id) " +
+		"LEFT JOIN ChatRoom cr ON cr.user1.id = least(f.follower.id, f.following.id) AND cr.user2.id = greatest(f.follower.id, f.following.id) " +
 		"WHERE f.following.id = :followingId")
 	List<FriendInfoResponse> findFriendInfoByFollowingId(@Param("followingId") Long followingId);
 

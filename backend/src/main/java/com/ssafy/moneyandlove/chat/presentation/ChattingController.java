@@ -47,12 +47,12 @@ public class ChattingController {
 
     @GetMapping("/room")
     public ResponseEntity<ChatRoomIdResponse> getChatRoomId(@LoginUser User loginUser, @RequestParam Long toUserId) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatRoomService.findByFromUserIdAndToUserId(loginUser.getId(), toUserId));
+        return ResponseEntity.status(HttpStatus.OK).body(chatRoomService.findChatRoom(loginUser.getId(), toUserId));
     }
 
     @PostMapping("/room")
     public ResponseEntity<ChatRoomIdResponse> createChatRoom(@LoginUser User loginUser, @RequestBody CreateChatRoomRequest createChatRoomRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(chatRoomService.save(loginUser, createChatRoomRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(chatRoomService.getOrCreateChatRoom(loginUser.getId(), createChatRoomRequest.getToUserId()));
     }
 
     @GetMapping("/room/{roomId}/message")
